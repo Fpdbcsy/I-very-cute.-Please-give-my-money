@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>欧尼酱 · 可以告诉我你的微信吗？</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: #ededed;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        /* 微信风格卡片 */
+        .wechat-card {
+            max-width: 400px;
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        /* 萝莉图片区域 */
+        .loli-section {
+            padding: 16px 16px 0 16px;
+        }
+
+        .loli-img {
+            width: 100%;
+            border-radius: 12px;
+            display: block;
+            object-fit: cover;
+        }
+
+        /* 文字区域 - 原梗逐行风格 */
+        .text-section {
+            padding: 20px 16px 8px 16px;
+        }
+
+        .text-line {
+            font-size: 17px;
+            line-height: 1.5;
+            color: #111;
+            margin-bottom: 6px;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .text-line.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 收款码区域 */
+        .qrcode-section {
+            padding: 8px 16px 16px 16px;
+            text-align: center;
+        }
+
+        .qrcode-label {
+            font-size: 13px;
+            color: #576b95;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .qrcode-img {
+            width: 200px;
+            height: 200px;
+            border-radius: 12px;
+            display: block;
+            margin: 0 auto;
+            border: 1px solid #e9e9e9;
+        }
+
+        .qrcode-hint {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 10px;
+        }
+
+        /* 两个按钮 - 原梗风格 */
+        .action-buttons {
+            display: flex;
+            border-top: 0.5px solid #e5e5e5;
+            margin-top: 8px;
+        }
+
+        .btn {
+            flex: 1;
+            text-align: center;
+            padding: 14px 0;
+            font-size: 16px;
+            font-weight: 500;
+            background: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-accept {
+            color: #07c160;
+            border-right: 0.5px solid #e5e5e5;
+            border-bottom-left-radius: 16px;
+        }
+
+        .btn-accept:active {
+            background: #f0f0f0;
+        }
+
+        .btn-reject {
+            color: #ff4d4f;
+            border-bottom-right-radius: 16px;
+        }
+
+        .btn-reject:active {
+            background: #f0f0f0;
+        }
+
+        /* toast 提示 */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.9);
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            transition: 0.2s;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
+    </style>
+</head>
+<body>
+
+<div class="wechat-card">
+    <!-- 萝莉图片 (1.png) -->
+    <div class="loli-section">
+        <img class="loli-img" src="1.png" alt="可爱萝莉妹妹" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 400 300%27%3E%3Crect width=%27400%27 height=%27300%27 fill=%27%23ffccdd%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 text-anchor=%27middle%27 dy=%27.3em%27 fill=%27%23994d66%27 font-size=%2718%27%3E🌸 萝莉妹妹 🌸%3C/text%3E%3C/svg%3E'">
+    </div>
+
+    <!-- 文字区域 - 原梗逐行风格 -->
+    <div class="text-section" id="textSection">
+        <div class="text-line">可爱的萝莉妹妹</div>
+        <div class="text-line">欧尼酱，可以...告诉我...你的....微信吗？</div>																								
+    </div>
+
+    <!-- 收款码 (2.jpg) -->
+    <div class="qrcode-section" id="qrcodeSection" style="display: none;">
+        <div class="qrcode-label">
+            <span>💚</span> 微信支付 · 扫一扫 <span>💚</span>
+        </div>
+        <img class="qrcode-img" src="2.jpg" alt="微信收款码" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 200 200%27%3E%3Crect width=%27200%27 height=%27200%27 fill=%27%2322822e%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 text-anchor=%27middle%27 dy=%27.3em%27 fill=%27white%27 font-size=%2714%27%3E微信收款码%3C/text%3E%3C/svg%3E'">
+        <div class="qrcode-hint">💡 长按识别 · 支持妹妹</div>
+    </div>
+
+    <!-- 两个选项 -->
+    <div class="action-buttons">
+        <button class="btn btn-accept" id="acceptBtn">💝 好的，给你！</button>
+        <button class="btn btn-reject" id="rejectBtn">❌ 残忍拒绝</button>
+    </div>
+</div>
+
+<div id="toastMsg" class="toast"></div>
+
+<script>
+    const acceptBtn = document.getElementById('acceptBtn');
+    const rejectBtn = document.getElementById('rejectBtn');
+    const toast = document.getElementById('toastMsg');
+    const textLines = document.querySelectorAll('.text-line');
+    const qrcodeSection = document.getElementById('qrcodeSection');
+
+    function showToast(msg, isError = false) {
+        toast.textContent = msg;
+        toast.style.backgroundColor = isError ? 'rgba(220, 53, 69, 0.9)' : 'rgba(7, 193, 96, 0.9)';
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                toast.style.backgroundColor = 'rgba(0, 0, 0, 0.75)';
+            }, 200);
+        }, 2000);
+    }
+
+    // 逐行动画效果 (像打字/分段出现)
+    let currentIndex = 0;
+    function showNextLine() {
+        if (currentIndex < textLines.length) {
+            textLines[currentIndex].classList.add('show');
+            currentIndex++;
+            setTimeout(showNextLine, 180); // 每行间隔0.18秒，像截图那种节奏
+        } else {
+            // 文字全部显示完后，收款码出现
+            qrcodeSection.style.display = 'block';
+            qrcodeSection.style.animation = 'fadeIn 0.4s ease';
+            // 收款码出现后轻闪一下
+            const qr = document.querySelector('.qrcode-img');
+            if (qr) {
+                setTimeout(() => {
+                    qr.style.transition = '0.1s';
+                    qr.style.transform = 'scale(1.02)';
+                    setTimeout(() => qr.style.transform = '', 300);
+                }, 100);
+            }
+        }
+    }
+
+    // 添加简单渐显动画
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // 页面加载后开始逐行显示文字
+    setTimeout(showNextLine, 300);
+
+    // 好的，给你！- 引导扫码
+    acceptBtn.addEventListener('click', () => {
+        if (qrcodeSection.style.display === 'none') {
+            showToast('✨ 欧尼酱，等文字说完码就会出现啦 ✨');
+        } else {
+            showToast('✨ 谢谢欧尼酱！快扫上面的码投喂妹妹叭 ✨');
+            const qr = document.querySelector('.qrcode-img');
+            qr.style.transition = '0.1s';
+            qr.style.transform = 'scale(1.02)';
+            setTimeout(() => qr.style.transform = '', 300);
+        }
+    });
+
+    // 残忍拒绝 - 原梗同款
+    rejectBtn.addEventListener('click', () => {
+        showToast('❌ 残忍拒绝！妹妹哭哭... (´;ω;`)', true);
+        const card = document.querySelector('.wechat-card');
+        card.style.transform = 'translateX(4px)';
+        setTimeout(() => card.style.transform = '', 100);
+        setTimeout(() => card.style.transform = 'translateX(-3px)', 100);
+        setTimeout(() => card.style.transform = '', 200);
+    });
+
+    console.log('%c🌸 图片说明: 请确保 1.png 和 2.jpg 在同目录下', 'color: #e85d8a; font-size: 12px');
+</script>
+</body>
+</html>
